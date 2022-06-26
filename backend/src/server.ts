@@ -1,8 +1,10 @@
-import validateEnv from "./utils/validateEnv";
-import App from "./app";
+import validateEnv from './utils/validateEnv'
+import App from './app'
 
-validateEnv();
+validateEnv()
 
-const app = new App([]);
+const app = new App([])
 
-app.listen();
+app.connectToDatabase().then(() => {
+  app.listen()
+})

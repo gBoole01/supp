@@ -1,4 +1,5 @@
 import * as express from 'express'
+import mongoose from 'mongoose'
 import dbConnectionURL from './config/db'
 import Controller from './interfaces/Controller.interface'
 
@@ -16,7 +17,6 @@ class App {
 
     this.initializeMiddlewares()
     this.initializeControllers(controllers)
-    this.connectToDatabase()
     this.initializeErrorHandling()
   }
 
@@ -24,7 +24,7 @@ class App {
     console.log('middlewares init')
   }
 
-  private initializeControllers(controllers: Controller[]) {
+  private initializeControllers(controllers?: Controller[]) {
     console.log('controllers init')
   }
 
@@ -32,8 +32,9 @@ class App {
     console.log('errorHandling init')
   }
 
-  private connectToDatabase() {
-    console.log('db connected')
+  public async connectToDatabase() {
+    const db = await mongoose.connect(this.dbConnectionURL)
+    console.log(`MongoDB connected: ${db.connection.host}`)
   }
 
   public listen() {
