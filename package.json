@@ -3,14 +3,15 @@
   "version": "0.0.1",
   "description": "TypeScript Express API of 'Supp' Full Stack Application",
   "private": true,
-  "main": "dist/server.js",
+  "main": "backend/dist/server.js",
   "scripts": {
-    "dev": "nodemon src/server.ts",
+    "prepare": "husky install",
+    "dev": "nodemon backend/src/server.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "build": "tsc",
     "watch": "tsc -w",
-    "serve": "npm run build && node dist/server.js",
-    "start": "nodemon dist/server.js"
+    "serve": "npm run build && node backend/dist/server.js",
+    "start": "nodemon backend/dist/server.js"
   },
   "author": "gBoole01",
   "license": "MIT",

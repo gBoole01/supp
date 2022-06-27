@@ -42,10 +42,10 @@ const format = winston.format.combine(
 const transports = [
   new winston.transports.Console(),
   new winston.transports.File({
-    filename: 'logs/error.log',
+    filename: 'backend/logs/error.log',
     level: 'error',
   }),
-  new winston.transports.File({ filename: 'logs/combined.log' }),
+  new winston.transports.File({ filename: 'backend/logs/combined.log' }),
 ]
 
 const Logger = winston.createLogger({
