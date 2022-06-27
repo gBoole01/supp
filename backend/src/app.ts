@@ -1,6 +1,7 @@
 import * as express from 'express'
 import { graphqlHTTP } from 'express-graphql'
 import mongoose from 'mongoose'
+import * as cors from 'cors'
 import * as bodyParser from 'body-parser'
 import Schema from './schemas/schema'
 import dbConnectionURL from './config/db'
@@ -25,6 +26,7 @@ class App {
 
   private initializeMiddlewares() {
     Logger.debug('⏳ Initializing Middlewares...')
+    this.app.use(cors())
     this.app.use(bodyParser.json())
     this.app.use(loggerMiddleware)
   }
