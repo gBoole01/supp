@@ -12,5 +12,5 @@
     "experimentalDecorators": true
   },
   "include": ["backend/src/**/*.ts"],
-  "exclude": ["backend/node_modules", "backend/.eslintrc.js"]
+  "exclude": ["node_modules", ".eslintrc.js"]
 }
