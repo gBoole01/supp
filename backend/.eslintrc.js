@@ -10,7 +10,7 @@ module.exports = {
     'prettier',
   ],
   parserOptions: {
-    project: ['./backend/tsconfig.json'],
+    project: ['./tsconfig.json'],
   },
   rules: {},
 }
