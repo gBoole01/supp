@@ -1,7 +1,11 @@
 import * as express from 'express'
+import { graphqlHTTP } from 'express-graphql'
 import mongoose from 'mongoose'
+import * as bodyParser from 'body-parser'
+import Schema from './schemas/schema'
 import dbConnectionURL from './config/db'
-import Controller from './interfaces/Controller.interface'
+import Logger from './lib/logger'
+import loggerMiddleware from './middlewares/logger.middleware'
 
 class App {
   public app: express.Application
@@ -10,37 +14,48 @@ class App {
 
   private dbConnectionURL: string
 
-  constructor(controllers?: Controller[], port?: number) {
+  constructor(port?: number) {
     this.app = express()
     this.port = port || 5000
     this.dbConnectionURL = dbConnectionURL
 
     this.initializeMiddlewares()
-    this.initializeControllers(controllers)
-    this.initializeErrorHandling()
+    this.initializeGraphQL()
   }
 
   private initializeMiddlewares() {
-    console.log('middlewares init')
+    Logger.debug('⏳ Initializing Middlewares...')
+    this.app.use(bodyParser.json())
+    this.app.use(loggerMiddleware)
   }
 
-  private initializeControllers(controllers?: Controller[]) {
-    console.log('controllers init')
-  }
-
-  private initializeErrorHandling() {
-    console.log('errorHandling init')
+  private initializeGraphQL() {
+    Logger.debug('⏳ Initializing GraphQL...')
+    this.app.use(
+      '/graphql',
+      graphqlHTTP({
+        schema: Schema,
+        graphiql: process.env.NODE_ENV === 'development',
+      }),
+    )
   }
 
   public async connectToDatabase() {
-    const db = await mongoose.connect(this.dbConnectionURL)
-    console.log(`MongoDB connected: ${db.connection.host}`)
+    Logger.debug('⏳ Connecting to Database...')
+    try {
+      const db = await mongoose.connect(this.dbConnectionURL)
+      Logger.info(`✅ MongoDB connected: ${db.connection.host}`)
+    } catch {
+      Logger.error('⚠️ Connection to Database failed')
+    }
   }
 
   public listen() {
-    this.app.listen(this.port, () =>
-      console.log(`App started ! Listening on port ${this.port}`),
-    )
+    this.app.listen(this.port, () => {
+      Logger.info(
+        `🚀 App started in ${process.env.NODE_ENV} mode ! Listening on port ${this.port}...`,
+      )
+    })
   }
 }
 
