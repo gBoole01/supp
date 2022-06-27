@@ -5,6 +5,7 @@
   "private": true,
   "main": "backend/dist/server.js",
   "scripts": {
+    "prepare": "husky install",
     "dev": "nodemon backend/src/server.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "build": "tsc",
