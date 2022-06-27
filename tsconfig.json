@@ -2,9 +2,9 @@
   "compilerOptions": {
     "target": "es2017",
     "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "baseUrl": "./src",
+    "outDir": "./backend/dist",
+    "rootDir": "./backend/src",
+    "baseUrl": "./backend/src",
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
