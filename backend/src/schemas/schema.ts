@@ -40,7 +40,7 @@ const mutation = new GraphQLObjectType({
       args: {
         name: { type: GraphQLNonNull(GraphQLString) },
       },
-      resolve(args: { name: string }) {
+      resolve(_parent, args) {
         const task = new Task({
           name: args.name,
         })
@@ -54,7 +54,7 @@ const mutation = new GraphQLObjectType({
         id: { type: GraphQLNonNull(GraphQLID) },
         name: { type: GraphQLNonNull(GraphQLString) },
       },
-      resolve(args: { id: string; name: string }) {
+      resolve(_parent, args) {
         return Task.findByIdAndUpdate(
           args.id,
           { $set: { name: args.name } },
@@ -65,7 +65,7 @@ const mutation = new GraphQLObjectType({
     deleteTask: {
       type: TaskType,
       args: { id: { type: GraphQLNonNull(GraphQLID) } },
-      resolve(args: { id: string; name: string }) {
+      resolve(_parent, args) {
         return Task.findByIdAndRemove(args.id)
       },
     },

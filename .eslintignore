@@ -1,5 +1,8 @@
 /.husky/
-/dist/
+backend/dist/
+frontend/dist/
+frontend/node_modules/
+frontend/vite.config.ts
 /node_modules/
 /.eslintrc.js
 /commitlint.config.js
