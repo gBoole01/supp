@@ -7,6 +7,7 @@ import Schema from './schemas/schema'
 import dbConnectionURL from './config/db'
 import Logger from './lib/logger'
 import loggerMiddleware from './middlewares/logger.middleware'
+import errorMiddleware from './middlewares/error.middleware'
 import Controller from './interfaces/Controller.interface'
 
 class App {
@@ -24,6 +25,7 @@ class App {
     this.initializeMiddlewares()
     this.initializeControllers(controllers)
     this.initializeGraphQL()
+    this.initializeErrorHandling()
   }
 
   private initializeMiddlewares() {
@@ -49,6 +51,11 @@ class App {
         graphiql: process.env.NODE_ENV === 'development',
       }),
     )
+  }
+
+  private initializeErrorHandling() {
+    Logger.debug('⏳ Initializing ErrorHandler...')
+    this.app.use(errorMiddleware)
   }
 
   public async connectToDatabase() {
