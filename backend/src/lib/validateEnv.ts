@@ -10,6 +10,8 @@ export default function validateEnv() {
     MONGODB_USER: str(),
     MONGODB_PASSWORD: str(),
     MONGODB_URL: str(),
-    TOKEN_SECRET_KEY: str(),
+    AUTH0_DOMAIN: str(),
+    AUTH0_CLIENT_ID: str(),
+    AUTH0_CLIENT_SECRET: str(),
   })
 }
