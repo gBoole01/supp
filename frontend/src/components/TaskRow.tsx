@@ -9,7 +9,10 @@ type Props = {
 }
 
 const TaskRow = ({ task }: Props) => {
-  const [deleteTask] = useMutation(DELETE_TASK, {
+  const [deleteTask] = useMutation<
+    { deleteTask: Task },
+    { id: string | undefined }
+  >(DELETE_TASK, {
     variables: { id: task.id },
     refetchQueries: [{ query: GET_TASKS }],
   })
@@ -18,7 +21,7 @@ const TaskRow = ({ task }: Props) => {
     <tr>
       <td>{task.name}</td>
       <td>
-        <button className="btn btn-danger btn-sm" onClick={() => deleteTask}>
+        <button className="btn btn-danger btn-sm" onClick={() => deleteTask()}>
           <FaTrash />
         </button>
       </td>
