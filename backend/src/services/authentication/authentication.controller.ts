@@ -30,8 +30,8 @@ class AuthenticationController implements Controller {
   ) => {
     const userData: CreateUserDTO = request.body
     try {
-      await AuthenticationService.register(userData)
-      response.sendStatus(200)
+      const user = await AuthenticationService.register(userData)
+      response.send(user)
     } catch (error) {
       next(error)
     }
