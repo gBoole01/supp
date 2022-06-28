@@ -31,7 +31,7 @@ type Info = {
 }
 
 const format = winston.format.combine(
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+  winston.format.timestamp({ format: 'YYYY-MM-DD_HH:mm:ss:ms' }),
   winston.format.colorize({ all: true }),
   winston.format.printf(
     ({ timestamp, level, message }: Info) =>
