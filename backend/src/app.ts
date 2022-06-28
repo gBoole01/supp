@@ -7,6 +7,8 @@ import Schema from './schemas/schema'
 import dbConnectionURL from './config/db'
 import Logger from './lib/logger'
 import loggerMiddleware from './middlewares/logger.middleware'
+import errorMiddleware from './middlewares/error.middleware'
+import Controller from './interfaces/Controller.interface'
 
 class App {
   public app: express.Application
@@ -15,13 +17,15 @@ class App {
 
   private dbConnectionURL: string
 
-  constructor(port?: number) {
+  constructor(controllers: Controller[], port?: number) {
     this.app = express()
     this.port = port || 5000
     this.dbConnectionURL = dbConnectionURL
 
     this.initializeMiddlewares()
+    this.initializeControllers(controllers)
     this.initializeGraphQL()
+    this.initializeErrorHandling()
   }
 
   private initializeMiddlewares() {
@@ -29,6 +33,13 @@ class App {
     this.app.use(cors())
     this.app.use(bodyParser.json())
     this.app.use(loggerMiddleware)
+  }
+
+  private initializeControllers(controllers: Controller[]) {
+    Logger.debug(`⏳ Initializing ${controllers.length} Controller(s)... `)
+    controllers.forEach((controller) => {
+      this.app.use('/', controller.router)
+    })
   }
 
   private initializeGraphQL() {
@@ -40,6 +51,11 @@ class App {
         graphiql: process.env.NODE_ENV === 'development',
       }),
     )
+  }
+
+  private initializeErrorHandling() {
+    Logger.debug('⏳ Initializing ErrorHandler...')
+    this.app.use(errorMiddleware)
   }
 
   public async connectToDatabase() {

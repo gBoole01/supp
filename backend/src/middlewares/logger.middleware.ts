@@ -13,13 +13,16 @@ const stream: morgan.StreamOptions = {
 }
 
 const registerGrapQLToken = () => {
-  morgan.token('graphql-query', (req: Request) => `GraphQL ${req.body.query}`)
+  morgan.token('graphql-query', (req: Request) => {
+    if (!req.body.query) return ''
+    return `\nGraphQL ${req.body.query}`
+  })
 }
 
 registerGrapQLToken()
 
 const loggerMiddleware = morgan(
-  '➡️  :method :url :status :res[content-length] - :response-time ms\n:graphql-query',
+  '➡️  :method :url :status :res[content-length] - :response-time ms :graphql-query',
   { stream },
 )
 
