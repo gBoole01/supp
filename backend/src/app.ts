@@ -62,7 +62,7 @@ class App {
     Logger.debug('⏳ Connecting to Database...')
     try {
       const db = await mongoose.connect(this.dbConnectionURL)
-      Logger.info(`✅ MongoDB connected: ${db.connection.host}`)
+      Logger.debug(`✅ MongoDB connected: ${db.connection.host}`)
     } catch {
       Logger.error('⚠️ Connection to Database failed')
     }
