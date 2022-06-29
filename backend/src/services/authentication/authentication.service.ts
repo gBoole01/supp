@@ -19,10 +19,7 @@ class AuthenticationService {
     user.save()
     Logger.info(`📢 ${user.name} just created an account ! 🎉`)
 
-    return {
-      name: user.name,
-      email: user.email,
-    }
+    return user
   }
 }
 
