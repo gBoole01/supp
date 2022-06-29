@@ -1,5 +1,3 @@
-import Logger from '../lib/logger'
-
 class HTTPException extends Error {
   status: number
 
@@ -9,7 +7,6 @@ class HTTPException extends Error {
     super(message)
     this.status = status
     this.message = message
-    Logger.error(`⛔ Error ${status}: ${message}`)
   }
 }
 
