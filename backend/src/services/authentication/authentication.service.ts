@@ -6,27 +6,22 @@ import EmailAlreadyInUseException from '../../exceptions/EmailAlreadyInUseExcept
 
 class AuthenticationService {
   public static async register(userData: CreateUserDTO) {
-    try {
-      const existingUser = await User.findOne({ email: userData.email })
-      if (existingUser) {
-        throw new EmailAlreadyInUseException(userData.email)
-      }
+    const existingUser = await User.findOne({ email: userData.email })
+    if (existingUser) {
+      throw new EmailAlreadyInUseException(userData.email)
+    }
 
-      const hashedPassword = await hash(userData.password, 10)
-      const user = new User({
-        name: userData.name,
-        email: userData.email,
-        password: hashedPassword,
-      })
-      user.save()
-      Logger.info(`📢 ${user.name} just created an account ! 🎉`)
+    const hashedPassword = await hash(userData.password, 10)
+    const user = new User({
+      ...userData,
+      password: hashedPassword,
+    })
+    user.save()
+    Logger.info(`📢 ${user.name} just created an account ! 🎉`)
 
-      return {
-        name: user.name,
-        email: user.email,
-      }
-    } catch (error) {
-      throw new Error(error)
+    return {
+      name: user.name,
+      email: user.email,
     }
   }
 }
