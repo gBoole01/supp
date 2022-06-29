@@ -5,15 +5,29 @@ const Register = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const onSubmit = (e: SubmitEvent) => {
+  const handleValidation = () => true
+
+  const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault()
+    console.log('handleSubmit')
+    const isValidForm = handleValidation()
+    if (isValidForm) {
+      const response = await fetch('https://localhost:5000/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      })
+
+      console.log(response)
+    }
   }
 
   return (
     <>
       <form
         className="d-flex flex-column gap-4 align-items-center"
-        onSubmit={() => onSubmit}
+        onSubmit={() => handleSubmit}
+        id="register-form"
       >
         <div className="form-group">
           <label className="form-label" htmlFor="name">
@@ -22,7 +36,7 @@ const Register = () => {
           <input
             type="text"
             className="form-control"
-            id="name"
+            id="register-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -34,7 +48,7 @@ const Register = () => {
           <input
             type="email"
             className="form-control"
-            id="email"
+            id="register-email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -46,20 +60,16 @@ const Register = () => {
           <input
             type="password"
             className="form-control"
-            id="password"
+            id="register-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button
-          type="submit"
-          data-bs-dismiss="modal"
-          className="btn btn-secondary"
-        >
+        <button type="submit" className="btn btn-secondary">
           Register
         </button>
       </form>
-      <a href="/">Have an Account ? Login</a>
+      <a href="/signin">Have an Account ? Login</a>
     </>
   )
 }

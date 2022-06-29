@@ -1,7 +1,6 @@
+import { BrowserRouter as Router } from 'react-router-dom'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
-import './App.css'
-import Header from './components/Header'
-import Home from './components/Home'
+import Layout from './components/Layout'
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -25,10 +24,9 @@ const client = new ApolloClient({
 const App = () => (
   <>
     <ApolloProvider client={client}>
-      <Header />
-      <div className="container">
-        <Home />
-      </div>
+      <Router>
+        <Layout />
+      </Router>
     </ApolloProvider>
   </>
 )
