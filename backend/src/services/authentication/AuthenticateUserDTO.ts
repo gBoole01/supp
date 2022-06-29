@@ -1,9 +1,6 @@
 import { IsEmail, IsString } from 'class-validator'
 
-class CreateUserDTO {
-  @IsString()
-  name: string
-
+class AuthenticateUserDTO {
   @IsEmail()
   email: string
 
@@ -11,4 +8,4 @@ class CreateUserDTO {
   password: string
 }
 
-export default CreateUserDTO
+export default AuthenticateUserDTO

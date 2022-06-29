@@ -13,5 +13,6 @@ export default function validateEnv() {
     AUTH0_DOMAIN: str(),
     AUTH0_CLIENT_ID: str(),
     AUTH0_CLIENT_SECRET: str(),
+    SESSION_SECRET: str(),
   })
 }
