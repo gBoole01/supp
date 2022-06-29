@@ -3,12 +3,20 @@ import { graphqlHTTP } from 'express-graphql'
 import mongoose from 'mongoose'
 import * as cors from 'cors'
 import * as bodyParser from 'body-parser'
+import * as passport from 'passport'
+import * as session from 'express-session'
 import Schema from './schemas/schema'
 import dbConnectionURL from './config/db'
-import Logger from './lib/logger'
+import {
+  deserializeUser,
+  localStrategy,
+  serializeUser,
+} from './config/passport'
+import sessionConfig from './config/session'
 import loggerMiddleware from './middlewares/logger.middleware'
 import errorMiddleware from './middlewares/error.middleware'
 import Controller from './interfaces/Controller.interface'
+import Logger from './lib/logger'
 
 class App {
   public app: express.Application
@@ -25,6 +33,7 @@ class App {
     this.initializeMiddlewares()
     this.initializeControllers(controllers)
     this.initializeGraphQL()
+    this.initializeAuthenticationStrategies()
     this.initializeErrorHandling()
   }
 
@@ -33,6 +42,7 @@ class App {
     this.app.use(cors())
     this.app.use(bodyParser.json())
     this.app.use(loggerMiddleware)
+    this.app.use(session(sessionConfig))
   }
 
   private initializeControllers(controllers: Controller[]) {
@@ -54,8 +64,17 @@ class App {
   }
 
   private initializeErrorHandling() {
-    Logger.debug('⏳ Initializing ErrorHandler...')
+    Logger.debug('⏳ Initializing Error Handler...')
     this.app.use(errorMiddleware)
+  }
+
+  private initializeAuthenticationStrategies() {
+    Logger.debug('⏳ Initializing Authentication Strategies...')
+    this.app.use(passport.initialize())
+    this.app.use(passport.session())
+    passport.use(localStrategy)
+    passport.serializeUser(serializeUser)
+    passport.deserializeUser(deserializeUser)
   }
 
   public async connectToDatabase() {
