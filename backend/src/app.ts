@@ -33,7 +33,7 @@ class App {
     this.initializeMiddlewares()
     this.initializeControllers(controllers)
     this.initializeGraphQL()
-    this.initializeAuthenticationStrategies()
+    this.initializeAuthenticationService()
     this.initializeErrorHandling()
   }
 
@@ -68,13 +68,13 @@ class App {
     this.app.use(errorMiddleware)
   }
 
-  private initializeAuthenticationStrategies() {
-    Logger.debug('⏳ Initializing Authentication Strategies...')
-    this.app.use(passport.initialize())
-    this.app.use(passport.session())
+  private initializeAuthenticationService() {
+    Logger.debug('⏳ Initializing Authentication Service...')
     passport.use(localStrategy)
     passport.serializeUser(serializeUser)
     passport.deserializeUser(deserializeUser)
+    this.app.use(passport.initialize())
+    this.app.use(passport.session())
   }
 
   public async connectToDatabase() {
