@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import AuthenticationService from '../services/authentication/authentication.service'
 
 const Register = () => {
   const [name, setName] = useState('')
@@ -13,6 +14,13 @@ const Register = () => {
     password: false,
     passwordConfirm: false,
   })
+
+  const resetFormValues = () => {
+    setName('')
+    setEmail('')
+    setPassword('')
+    setPasswordConfirm('')
+  }
 
   const handleValidation = () => {
     const tempErrors = {
@@ -53,19 +61,22 @@ const Register = () => {
     return isValid
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const isValidForm = handleValidation()
     if (isValidForm) {
-      // const response = await fetch('https://localhost:5000/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name, email, password }),
-      // })
-      setName('')
-      setEmail('')
-      setPassword('')
-      setPasswordConfirm('')
+      const { data, error } = await AuthenticationService.register(
+        name,
+        email,
+        password,
+      )
+      if (error) {
+        // TODO => Handle API Errors
+        console.error(error)
+      }
+      // TODO => Handle Valid Login
+      console.log(data)
+      resetFormValues()
     }
   }
 
