@@ -2,6 +2,8 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 import Layout from './components/Layout'
 
+const GRAPHQL_ENDPOINT = `${import.meta.env.VITE_API_URL}/graphql`
+
 const cache = new InMemoryCache({
   typePolicies: {
     Query: {
@@ -17,7 +19,7 @@ const cache = new InMemoryCache({
 })
 
 const client = new ApolloClient({
-  uri: import.meta.env.VITE_GRAPHQL_BASE_ROUTE,
+  uri: GRAPHQL_ENDPOINT,
   cache,
 })
 
