@@ -12,5 +12,8 @@ module.exports = {
   parserOptions: {
     project: ['tsconfig.json', 'frontend/tsconfig.json'],
   },
-  rules: { "import/extensions": ["error", "never"] },
+  rules: {
+    'import/extensions': ['error', 'never'],
+    'no-underscore-dangle': ['error', { 'allow': ['_id'] }],
+  },
 }
