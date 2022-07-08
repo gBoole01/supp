@@ -1,7 +1,8 @@
-import { PassportLocalDocument } from 'mongoose'
+import { PassportLocalDocument, Types } from 'mongoose'
 import { Request } from 'express'
 
-interface SessionI {
+interface SessionI extends Types.ArraySubdocument {
+  _id?: string
   refreshToken: string
 }
 
@@ -11,7 +12,7 @@ interface UserI extends PassportLocalDocument {
   lastName: string
   authStrategy: string
   points: number
-  refreshToken: SessionI[]
+  refreshToken: Types.DocumentArray<SessionI>
 }
 
 interface UserRequestI {
