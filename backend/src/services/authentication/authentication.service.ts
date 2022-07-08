@@ -50,8 +50,19 @@ class AuthenticationService {
     return { token, refreshToken }
   }
 
-  public static async disconnect(userId: string) {
-    Logger.info(`🔴 ${userId} has disconnected`)
+  public static async disconnect(userId: string, refreshToken: string) {
+    const user = await User.findById(userId)
+
+    const tokenIndex = user.refreshToken.findIndex(
+      (item) => item.refreshToken === refreshToken,
+    )
+
+    if (tokenIndex !== -1) {
+      user.refreshToken.id(user.refreshToken[tokenIndex]._id).remove()
+    }
+    user.save()
+
+    Logger.info(`🔴 ${user.firstName} has disconnected`)
   }
 
   public static async refreshToken(refreshToken: string) {
@@ -70,7 +81,7 @@ class AuthenticationService {
 
       const token = AuthenticationService.getToken(user)
       const newRefreshToken = AuthenticationService.getRefreshToken(user)
-      user.refreshToken[tokenIndex] = { refreshToken: newRefreshToken }
+      user.refreshToken[tokenIndex].refreshToken = newRefreshToken
       user.save()
 
       return { token, newRefreshToken }
