@@ -5,7 +5,6 @@ import * as cors from 'cors'
 import * as bodyParser from 'body-parser'
 import * as cookieParser from 'cookie-parser'
 import * as passport from 'passport'
-import * as session from 'express-session'
 import Schema from './schemas/schema'
 import corsConfig from './config/cors'
 import dbConnectionURL from './config/db'
@@ -15,7 +14,6 @@ import {
   jwtStrategy,
   serializeUser,
 } from './config/passport'
-import sessionConfig from './config/session'
 import loggerMiddleware from './middlewares/logger.middleware'
 import errorMiddleware from './middlewares/error.middleware'
 import Controller from './interfaces/Controller.interface'
@@ -46,7 +44,6 @@ class App {
     this.app.use(bodyParser.json())
     this.app.use(cookieParser(process.env.COOKIE_SECRET))
     this.app.use(loggerMiddleware)
-    this.app.use(session(sessionConfig))
   }
 
   private initializeControllers(controllers: Controller[]) {
@@ -79,7 +76,6 @@ class App {
     passport.serializeUser(serializeUser)
     passport.deserializeUser(deserializeUser)
     this.app.use(passport.initialize())
-    this.app.use(passport.session())
   }
 
   public async connectToDatabase() {

@@ -17,7 +17,6 @@ export default function validateEnv() {
     REFRESH_TOKEN_EXPIRACY_MINUTES: num(),
     REFRESH_TOKEN_EXPIRACY_HOURS: num(),
     REFRESH_TOKEN_EXPIRACY_DAYS: num(),
-    SESSION_SECRET: str(),
     SESSION_EXPIRACY_SECONDS: num(),
     SESSION_EXPIRACY_MINUTES: num(),
   })
