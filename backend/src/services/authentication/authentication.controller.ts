@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response, Router } from 'express'
-import * as passport from 'passport'
+// import * as passport from 'passport'
+import cookieConfig from '../../config/cookie'
 import Controller from '../../interfaces/Controller.interface'
 import AuthenticationService from './authentication.service'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import CreateUserDTO from './CreateUserDTO'
-import AuthenticateUserDTO from './AuthenticateUserDTO'
-import AuthenticationFailureException from '../../exceptions/AuthenticationFailureException'
+// import AuthenticateUserDTO from './AuthenticateUserDTO'
 
 class AuthenticationController implements Controller {
   public path = '/auth'
@@ -22,16 +22,16 @@ class AuthenticationController implements Controller {
       validationMiddleware(CreateUserDTO),
       AuthenticationController.registration,
     )
-    this.router.post(
-      `${this.path}/login/password`,
-      validationMiddleware(AuthenticateUserDTO),
-      passport.authenticate('local'),
-      AuthenticationController.authentication,
-    )
-    this.router.post(
-      `${this.path}/logout`,
-      AuthenticationController.disconnection,
-    )
+    // this.router.post(
+    //   `${this.path}/login/password`,
+    //   validationMiddleware(AuthenticateUserDTO),
+    //   passport.authenticate('local'),
+    //   AuthenticationController.authentication,
+    // )
+    // this.router.get(
+    //   `${this.path}/logout`,
+    //   AuthenticationController.disconnection,
+    // )
   }
 
   private static registration = async (
@@ -41,35 +41,47 @@ class AuthenticationController implements Controller {
   ) => {
     const userData: CreateUserDTO = request.body
     try {
-      const user = await AuthenticationService.register(userData)
-      response.send(user)
+      const { token, refreshToken } = await AuthenticationService.register(
+        userData,
+      )
+
+      response.cookie('refreshToken', refreshToken, cookieConfig)
+      response.send({ success: true, token })
     } catch (error) {
       next(error)
     }
   }
 
-  private static authentication = async (
-    request: Request,
-    response: Response,
-    next: NextFunction,
-  ) => {
-    const { user } = request
-    if (!user) next(new AuthenticationFailureException())
-    response.send(user)
-  }
+  // private static authentication = async (
+  //   request: Request,
+  //   response: Response,
+  //   next: NextFunction,
+  // ) => {
+  //   try {
+  //     const { user } = request
+  //     const { token, refreshToken } = await AuthenticationService.authenticate(
+  //       user,
+  //     )
 
-  private static disconnection = async (
-    request: Request,
-    response: Response,
-    next: NextFunction,
-  ) => {
-    const { session } = request
-    session.destroy((error) => {
-      if (error) return next(error)
-      response.clearCookie('connect.sid')
-      return response.sendStatus(200)
-    })
-  }
+  //     response.cookie('refreshToken', refreshToken, cookieConfig)
+  //     response.send({ success: true, token })
+  //   } catch (error) {
+  //     next(error)
+  //   }
+  // }
+
+  // private static disconnection = async (
+  //   request: Request,
+  //   response: Response,
+  //   // next: NextFunction,
+  // ) => {
+  //   console.log(request.session)
+  //   console.log(request.user)
+  //   delete request.user
+  //   delete request.session
+  //   response.clearCookie('connect.sid')
+  //   return response.sendStatus(200)
+  // }
 }
 
 export default AuthenticationController
