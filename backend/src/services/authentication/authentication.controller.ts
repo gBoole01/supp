@@ -7,6 +7,7 @@ import AuthenticationService from './authentication.service'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import CreateUserDTO from './CreateUserDTO'
 import AuthenticateUserDTO from './AuthenticateUserDTO'
+import WrongRefreshTokenException from '../../exceptions/WrongRefreshTokenException'
 
 class AuthenticationController implements Controller {
   public path = '/auth'
@@ -50,6 +51,7 @@ class AuthenticationController implements Controller {
       const { token, refreshToken } = await AuthenticationService.register(
         userData,
       )
+      if (!token || !refreshToken) throw new WrongRefreshTokenException()
 
       response.cookie('refreshToken', refreshToken, cookieConfig)
       response.send({ success: true, token })
