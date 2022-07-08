@@ -14,23 +14,26 @@ class AuthenticationService {
 
     const token = AuthenticationService.getToken(user)
     const refreshToken = AuthenticationService.getRefreshToken(user)
-    user.refreshToken.push({ refreshToken })
 
+    user.refreshToken.push({ refreshToken })
     user.save()
     Logger.info(`📢 ${user.firstName} just created an account ! 🎉`)
 
     return { token, refreshToken }
   }
 
-  // public static async authenticate(user: Express.User) {
-  //   const dbUser = await User.findById(user)
-  //   console.log(user)
-  //   console.log(dbUser)
-  //   const token = AuthenticationService.getToken(dbUser)
-  //   const refreshToken = AuthenticationService.getRefreshToken(dbUser)
+  public static async authenticate(userId: string) {
+    const user = await User.findById(userId)
 
-  //   return { token, refreshToken }
-  // }
+    const token = AuthenticationService.getToken(user)
+    const refreshToken = AuthenticationService.getRefreshToken(user)
+
+    user.refreshToken.push({ refreshToken })
+    user.save()
+    Logger.info(`🟢 ${user.firstName} is connected`)
+
+    return { token, refreshToken }
+  }
 
   private static getToken(user: UserI) {
     const {
