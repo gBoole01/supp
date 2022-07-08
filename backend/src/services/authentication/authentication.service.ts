@@ -3,6 +3,21 @@ import User from '../../models/User'
 import Logger from '../../lib/logger'
 import CreateUserDTO from './CreateUserDTO'
 import { UserI } from '../../interfaces/User.interface'
+import WrongRefreshTokenException from '../../exceptions/WrongRefreshTokenException'
+
+type RefreshTokenPayload = {
+  firstName: string
+  lastName: string
+  authStrategy: string
+  points: number
+  _id: string
+  username: string
+  salt: string
+  hash: string
+  __v: number
+  iat: number
+  exp: number
+}
 
 class AuthenticationService {
   public static async register(userData: CreateUserDTO) {
@@ -35,6 +50,35 @@ class AuthenticationService {
     return { token, refreshToken }
   }
 
+  public static async disconnect(userId: string) {
+    Logger.info(`🔴 ${userId} has disconnected`)
+  }
+
+  public static async refreshToken(refreshToken: string) {
+    const payload = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+    ) as RefreshTokenPayload
+    const user = await User.findOne({ _id: payload._id })
+
+    if (user) {
+      const tokenIndex = user.refreshToken.findIndex(
+        (item) => item.refreshToken === refreshToken,
+      )
+
+      if (tokenIndex === -1) throw new WrongRefreshTokenException()
+
+      const token = AuthenticationService.getToken(user)
+      const newRefreshToken = AuthenticationService.getRefreshToken(user)
+      user.refreshToken[tokenIndex] = { refreshToken: newRefreshToken }
+      user.save()
+
+      return { token, newRefreshToken }
+    }
+
+    return { token: undefined, newRefreshToken: undefined }
+  }
+
   private static getToken(user: UserI) {
     const {
       JWT_SECRET,
@@ -51,7 +95,7 @@ class AuthenticationService {
 
   private static getRefreshToken(user: UserI) {
     const {
-      JWT_SECRET,
+      REFRESH_TOKEN_SECRET,
       REFRESH_TOKEN_EXPIRACY_SECONDS: seconds,
       REFRESH_TOKEN_EXPIRACY_MINUTES: minutes,
       REFRESH_TOKEN_EXPIRACY_HOURS: hours,
@@ -64,7 +108,7 @@ class AuthenticationService {
       parseInt(hours, 10) *
       parseInt(days, 10)
 
-    return jwt.sign(user.toJSON(), JWT_SECRET, {
+    return jwt.sign(user.toJSON(), REFRESH_TOKEN_SECRET, {
       expiresIn,
     })
   }

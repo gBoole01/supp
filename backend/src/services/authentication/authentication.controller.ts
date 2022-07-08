@@ -7,6 +7,7 @@ import AuthenticationService from './authentication.service'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import CreateUserDTO from './CreateUserDTO'
 import AuthenticateUserDTO from './AuthenticateUserDTO'
+import WrongRefreshTokenException from '../../exceptions/WrongRefreshTokenException'
 
 class AuthenticationController implements Controller {
   public path = '/auth'
@@ -29,6 +30,10 @@ class AuthenticationController implements Controller {
       passport.authenticate('local', { session: false }),
       AuthenticationController.authentication,
     )
+    this.router.get(
+      `${this.path}/refreshToken`,
+      AuthenticationController.refreshToken,
+    )
     // this.router.get(
     //   `${this.path}/logout`,
     //   AuthenticationController.disconnection,
@@ -41,10 +46,12 @@ class AuthenticationController implements Controller {
     next: NextFunction,
   ) => {
     const userData: CreateUserDTO = request.body
+
     try {
       const { token, refreshToken } = await AuthenticationService.register(
         userData,
       )
+      if (!token || !refreshToken) throw new WrongRefreshTokenException()
 
       response.cookie('refreshToken', refreshToken, cookieConfig)
       response.send({ success: true, token })
@@ -58,13 +65,37 @@ class AuthenticationController implements Controller {
     response: Response,
     next: NextFunction,
   ) => {
+    const { user } = request
+
     try {
-      const { user } = request
       const { token, refreshToken } = await AuthenticationService.authenticate(
         user._id,
       )
       response.cookie('refreshToken', refreshToken, cookieConfig)
       response.send({ success: true, token })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  private static refreshToken = async (
+    request: RequestWithUser,
+    response: Response,
+    next: NextFunction,
+  ) => {
+    const { signedCookies = {} } = request
+    const { refreshToken } = signedCookies
+
+    try {
+      if (refreshToken) {
+        const {
+          token,
+          newRefreshToken,
+        } = await AuthenticationService.refreshToken(refreshToken)
+
+        response.cookie('refreshToken', newRefreshToken, cookieConfig)
+        response.send({ success: true, token })
+      }
     } catch (error) {
       next(error)
     }
