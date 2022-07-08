@@ -34,10 +34,16 @@ class AuthenticationController implements Controller {
       `${this.path}/refreshToken`,
       AuthenticationController.refreshToken,
     )
-    // this.router.get(
-    //   `${this.path}/logout`,
-    //   AuthenticationController.disconnection,
-    // )
+    this.router.get(
+      `${this.path}/me`,
+      passport.authenticate('jwt', { session: false }),
+      AuthenticationController.getUserDetails,
+    )
+    this.router.get(
+      `${this.path}/logout`,
+      passport.authenticate('jwt', { session: false }),
+      AuthenticationController.disconnection,
+    )
   }
 
   private static registration = async (
@@ -101,18 +107,35 @@ class AuthenticationController implements Controller {
     }
   }
 
-  // private static disconnection = async (
-  //   request: Request,
-  //   response: Response,
-  //   // next: NextFunction,
-  // ) => {
-  //   console.log(request.session)
-  //   console.log(request.user)
-  //   delete request.user
-  //   delete request.session
-  //   response.clearCookie('connect.sid')
-  //   return response.sendStatus(200)
-  // }
+  private static getUserDetails = (
+    request: RequestWithUser,
+    response: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      response.send(request.user)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  private static disconnection = async (
+    request: RequestWithUser,
+    response: Response,
+    next: NextFunction,
+  ) => {
+    const { signedCookies = {} } = request
+    const { refreshToken } = signedCookies
+
+    try {
+      await AuthenticationService.disconnect(request.user._id, refreshToken)
+
+      response.clearCookie('refreshToken', cookieConfig)
+      response.send({ success: true })
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
 export default AuthenticationController
