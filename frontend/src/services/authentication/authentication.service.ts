@@ -16,6 +16,10 @@ type LoginResponse = {
   _id: string
 }
 
+type LogoutResponse = {
+  _id: string
+}
+
 class AuthenticationService {
   static async register(name: string, email: string, password: string) {
     try {
@@ -50,15 +54,43 @@ class AuthenticationService {
 
   static async login(email: string, password: string) {
     try {
-      const { data } = await axios.post<LoginResponse>(
+      const response = await axios.post<LoginResponse>(
         `${AUTHENTICATION_ENDPOINT}/login/password`,
         {
           email,
           password,
         },
       )
+
       return {
-        data,
+        data: response.data,
+        error: null,
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error(`Axios Error: ${error.message}`)
+        return {
+          data: null,
+          error: error.message,
+        }
+      }
+      console.error(`Unexpected Error: ${error}`)
+      return {
+        data: null,
+        error: 'Something went wrong',
+      }
+    }
+  }
+
+  static async logout() {
+    try {
+      const response = await axios.get<LogoutResponse>(
+        `${AUTHENTICATION_ENDPOINT}/logout`,
+      )
+
+      console.log(response)
+      return {
+        data: response.data,
         error: null,
       }
     } catch (error) {
