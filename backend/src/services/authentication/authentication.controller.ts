@@ -29,6 +29,10 @@ class AuthenticationController implements Controller {
       passport.authenticate('local', { session: false }),
       AuthenticationController.authentication,
     )
+    this.router.get(
+      `${this.path}/refreshToken`,
+      AuthenticationController.refreshToken,
+    )
     // this.router.get(
     //   `${this.path}/logout`,
     //   AuthenticationController.disconnection,
@@ -41,6 +45,7 @@ class AuthenticationController implements Controller {
     next: NextFunction,
   ) => {
     const userData: CreateUserDTO = request.body
+
     try {
       const { token, refreshToken } = await AuthenticationService.register(
         userData,
@@ -58,13 +63,37 @@ class AuthenticationController implements Controller {
     response: Response,
     next: NextFunction,
   ) => {
+    const { user } = request
+
     try {
-      const { user } = request
       const { token, refreshToken } = await AuthenticationService.authenticate(
         user._id,
       )
       response.cookie('refreshToken', refreshToken, cookieConfig)
       response.send({ success: true, token })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  private static refreshToken = async (
+    request: RequestWithUser,
+    response: Response,
+    next: NextFunction,
+  ) => {
+    const { signedCookies = {} } = request
+    const { refreshToken } = signedCookies
+
+    try {
+      if (refreshToken) {
+        const {
+          token,
+          newRefreshToken,
+        } = await AuthenticationService.refreshToken(refreshToken)
+
+        response.cookie('refreshToken', newRefreshToken, cookieConfig)
+        response.send({ success: true, token })
+      }
     } catch (error) {
       next(error)
     }
