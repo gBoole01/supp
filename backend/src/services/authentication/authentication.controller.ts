@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response, Router } from 'express'
-// import * as passport from 'passport'
+import * as passport from 'passport'
 import cookieConfig from '../../config/cookie'
 import Controller from '../../interfaces/Controller.interface'
+import { RequestWithUser } from '../../interfaces/User.interface'
 import AuthenticationService from './authentication.service'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import CreateUserDTO from './CreateUserDTO'
-// import AuthenticateUserDTO from './AuthenticateUserDTO'
+import AuthenticateUserDTO from './AuthenticateUserDTO'
 
 class AuthenticationController implements Controller {
   public path = '/auth'
@@ -22,12 +23,12 @@ class AuthenticationController implements Controller {
       validationMiddleware(CreateUserDTO),
       AuthenticationController.registration,
     )
-    // this.router.post(
-    //   `${this.path}/login/password`,
-    //   validationMiddleware(AuthenticateUserDTO),
-    //   passport.authenticate('local'),
-    //   AuthenticationController.authentication,
-    // )
+    this.router.post(
+      `${this.path}/login/password`,
+      validationMiddleware(AuthenticateUserDTO),
+      passport.authenticate('local', { session: false }),
+      AuthenticationController.authentication,
+    )
     // this.router.get(
     //   `${this.path}/logout`,
     //   AuthenticationController.disconnection,
@@ -52,23 +53,22 @@ class AuthenticationController implements Controller {
     }
   }
 
-  // private static authentication = async (
-  //   request: Request,
-  //   response: Response,
-  //   next: NextFunction,
-  // ) => {
-  //   try {
-  //     const { user } = request
-  //     const { token, refreshToken } = await AuthenticationService.authenticate(
-  //       user,
-  //     )
-
-  //     response.cookie('refreshToken', refreshToken, cookieConfig)
-  //     response.send({ success: true, token })
-  //   } catch (error) {
-  //     next(error)
-  //   }
-  // }
+  private static authentication = async (
+    request: RequestWithUser,
+    response: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { user } = request
+      const { token, refreshToken } = await AuthenticationService.authenticate(
+        user._id,
+      )
+      response.cookie('refreshToken', refreshToken, cookieConfig)
+      response.send({ success: true, token })
+    } catch (error) {
+      next(error)
+    }
+  }
 
   // private static disconnection = async (
   //   request: Request,

@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import { Strategy as LocalStrategy } from 'passport-local'
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'
 import User from '../models/User'
