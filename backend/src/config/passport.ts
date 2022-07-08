@@ -1,29 +1,33 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-underscore-dangle */
 import { Strategy as LocalStrategy } from 'passport-local'
-import { compare } from 'bcrypt'
+import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'
 import User from '../models/User'
+
+const opts = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET,
+}
+
+const jwtStrategy = new JWTStrategy(opts, (jwt_payload, done) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  User.findOne({ _id: jwt_payload._id }, (err: any, user: any) => {
+    if (err) return done(err, false)
+    if (!user) return done(null, false)
+    return done(null, user)
+  })
+})
 
 const localStrategy = new LocalStrategy(
   { usernameField: 'email' },
-  async (username, password, done) => {
-    try {
-      const user = await User.findOne({ username })
-      if (!user) return done(null, false)
-      const passwordMatch = await compare(password, user.password)
-      if (!passwordMatch) return done(null, false)
-      return done(null, user)
-    } catch (error) {
-      return done(error)
-    }
-  },
+  User.authenticate(),
 )
 
-const serializeUser = (user: any, done: any) => {
-  done(null, user.id)
+const serializeUser = () => {
+  User.serializeUser()
 }
 
-const deserializeUser = (id: string, done: any) => {
-  User.findById(id, (error: any, user: any) => done(error, user))
+const deserializeUser = () => {
+  User.deserializeUser()
 }
 
-export { localStrategy, serializeUser, deserializeUser }
+export { jwtStrategy, localStrategy, serializeUser, deserializeUser }

@@ -3,13 +3,16 @@ import { graphqlHTTP } from 'express-graphql'
 import mongoose from 'mongoose'
 import * as cors from 'cors'
 import * as bodyParser from 'body-parser'
+import * as cookieParser from 'cookie-parser'
 import * as passport from 'passport'
 import * as session from 'express-session'
 import Schema from './schemas/schema'
+import corsConfig from './config/cors'
 import dbConnectionURL from './config/db'
 import {
   deserializeUser,
   localStrategy,
+  jwtStrategy,
   serializeUser,
 } from './config/passport'
 import sessionConfig from './config/session'
@@ -39,8 +42,9 @@ class App {
 
   private initializeMiddlewares() {
     Logger.debug('⏳ Initializing Middlewares...')
-    this.app.use(cors())
+    this.app.use(cors(corsConfig))
     this.app.use(bodyParser.json())
+    this.app.use(cookieParser(process.env.COOKIE_SECRET))
     this.app.use(loggerMiddleware)
     this.app.use(session(sessionConfig))
   }
@@ -70,6 +74,7 @@ class App {
 
   private initializeAuthenticationService() {
     Logger.debug('⏳ Initializing Authentication Service...')
+    passport.use(jwtStrategy)
     passport.use(localStrategy)
     passport.serializeUser(serializeUser)
     passport.deserializeUser(deserializeUser)
