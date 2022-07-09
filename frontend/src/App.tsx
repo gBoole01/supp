@@ -1,6 +1,7 @@
 import { BrowserRouter as Router } from 'react-router-dom'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 import Layout from './components/Layout'
+import { UserProvider } from './context/UserContext'
 
 const GRAPHQL_ENDPOINT = `${import.meta.env.VITE_API_URL}/graphql`
 
@@ -25,11 +26,13 @@ const client = new ApolloClient({
 
 const App = () => (
   <>
-    <ApolloProvider client={client}>
-      <Router>
-        <Layout />
-      </Router>
-    </ApolloProvider>
+    <UserProvider>
+      <ApolloProvider client={client}>
+        <Router>
+          <Layout />
+        </Router>
+      </ApolloProvider>
+    </UserProvider>
   </>
 )
 

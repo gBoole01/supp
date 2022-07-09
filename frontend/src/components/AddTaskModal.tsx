@@ -3,35 +3,37 @@ import { SyntheticEvent, useState } from 'react'
 import { FaStickyNote } from 'react-icons/fa'
 import { ADD_TASK } from '../mutations/taskMutations'
 import { GET_TASKS } from '../queries/taskQueries'
-import Task from '../types/Task'
+import { Task, NewTask } from '../types/Task'
 
 const AddTaskModal = () => {
   const [name, setName] = useState('')
 
-  const [addTask] = useMutation<{ addTask: Task }, { name: string }>(ADD_TASK, {
-    variables: { name },
-    update(cache, { data }) {
-      if (!data || !data.addTask) return
-      const cacheData = cache.readQuery<{ tasks: Task[] }>({
-        query: GET_TASKS,
-      })
-      if (!cacheData || !cacheData.tasks) return
+  const [addTask] = useMutation<{ addTask: Task }, { task: NewTask }>(
+    ADD_TASK,
+    {
+      variables: { task: { name } },
+      update(cache, { data }) {
+        if (!data || !data.addTask) return
+        const cacheData = cache.readQuery<{ tasks: Task[] }>({
+          query: GET_TASKS,
+        })
+        if (!cacheData || !cacheData.tasks) return
 
-      const { tasks } = cacheData
-      cache.writeQuery({
-        query: GET_TASKS,
-        data: { tasks: [...tasks, data.addTask] },
-      })
+        const { tasks } = cacheData
+        cache.writeQuery({
+          query: GET_TASKS,
+          data: { tasks: [...tasks, data.addTask] },
+        })
+      },
     },
-  })
+  )
 
   const onSubmit = (event: SyntheticEvent): void => {
     event.preventDefault()
     if (name === '') {
-      // eslint-disable-next-line no-console
       console.error('Something went wrong')
     }
-    addTask(name)
+    addTask()
 
     setName('')
   }
