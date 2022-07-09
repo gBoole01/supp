@@ -16,6 +16,20 @@ type LogoutResponse = {
   success: boolean
 }
 
+type VerifyUserResponse = {
+  success: boolean
+  token: string
+}
+
+type FetchUserDetailsResponse = {
+  _id: string
+  firstName: string
+  lastName: string
+  authStrategy: string
+  points: number
+  username: string
+}
+
 class AuthenticationService {
   static async register(name: string, email: string, password: string) {
     try {
@@ -28,8 +42,6 @@ class AuthenticationService {
         },
         { withCredentials: true },
       )
-
-      if (data.token) localStorage.setItem('user', JSON.stringify(data))
 
       return {
         data,
@@ -60,7 +72,34 @@ class AuthenticationService {
         { withCredentials: true },
       )
 
-      if (data.token) localStorage.setItem('user', JSON.stringify(data))
+      return {
+        data,
+        error: null,
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return {
+          data: null,
+          error: error.message,
+        }
+      }
+      return {
+        data: null,
+        error: 'Something went wrong',
+      }
+    }
+  }
+
+  static async logout(userToken: string) {
+    try {
+      const { data } = await axios.post<LogoutResponse>(
+        `${AUTHENTICATION_ENDPOINT}/logout`,
+        {},
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${userToken}` },
+        },
+      )
 
       return {
         data,
@@ -80,20 +119,18 @@ class AuthenticationService {
     }
   }
 
-  static async logout() {
+  static async verifyUser() {
     try {
-      const response = await axios.get<LogoutResponse>(
-        `${AUTHENTICATION_ENDPOINT}/logout`,
+      const { data } = await axios.post<VerifyUserResponse>(
+        `${AUTHENTICATION_ENDPOINT}/refreshToken`,
+        {},
         {
-          headers: AuthenticationService.getAuthHeader(),
           withCredentials: true,
         },
       )
 
-      localStorage.removeItem('user')
-
       return {
-        data: response.data,
+        data,
         error: null,
       }
     } catch (error) {
@@ -110,22 +147,30 @@ class AuthenticationService {
     }
   }
 
-  static getCurrentUser() {
-    const userStr = localStorage.getItem('user')
-    if (!userStr) return null
-    return JSON.parse(userStr)
-  }
+  static async fetchUserDetails(userToken: string) {
+    try {
+      const { data } = await axios.post<FetchUserDetailsResponse>(
+        `${AUTHENTICATION_ENDPOINT}/me`,
+        {},
+        { headers: { Authorization: `Bearer ${userToken}` } },
+      )
 
-  static getAuthHeader() {
-    const userStr = localStorage.getItem('user')
-    if (userStr) {
-      const user = JSON.parse(userStr)
-      if (user && user.token) {
-        return { Authorization: `Bearer ${user.token}` }
+      return {
+        data,
+        error: null,
       }
-      return { Authorization: '' }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return {
+          data: null,
+          error: error.message,
+        }
+      }
+      return {
+        data: null,
+        error: 'Something went wrong',
+      }
     }
-    return { Authorization: '' }
   }
 }
 
