@@ -3,21 +3,17 @@ import axios from 'axios'
 const AUTHENTICATION_ENDPOINT = `${import.meta.env.VITE_API_URL}/auth`
 
 type RegisterResponse = {
-  name: string
-  email: string
-  password: string
-  _id: string
+  success: boolean
+  token: string
 }
 
 type LoginResponse = {
-  name: string
-  email: string
-  password: string
-  _id: string
+  success: boolean
+  token: string
 }
 
 type LogoutResponse = {
-  _id: string
+  success: boolean
 }
 
 class AuthenticationService {
@@ -30,7 +26,10 @@ class AuthenticationService {
           email,
           password,
         },
+        { withCredentials: true },
       )
+
+      if (data.token) localStorage.setItem('user', JSON.stringify(data))
 
       return {
         data,
@@ -38,13 +37,11 @@ class AuthenticationService {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(`Axios Error: ${error.message}`)
         return {
           data: null,
           error: error.message,
         }
       }
-      console.error(`Unexpected Error: ${error}`)
       return {
         data: null,
         error: 'Something went wrong',
@@ -54,27 +51,28 @@ class AuthenticationService {
 
   static async login(email: string, password: string) {
     try {
-      const response = await axios.post<LoginResponse>(
+      const { data } = await axios.post<LoginResponse>(
         `${AUTHENTICATION_ENDPOINT}/login/password`,
         {
           email,
           password,
         },
+        { withCredentials: true },
       )
 
+      if (data.token) localStorage.setItem('user', JSON.stringify(data))
+
       return {
-        data: response.data,
+        data,
         error: null,
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(`Axios Error: ${error.message}`)
         return {
           data: null,
           error: error.message,
         }
       }
-      console.error(`Unexpected Error: ${error}`)
       return {
         data: null,
         error: 'Something went wrong',
@@ -86,27 +84,48 @@ class AuthenticationService {
     try {
       const response = await axios.get<LogoutResponse>(
         `${AUTHENTICATION_ENDPOINT}/logout`,
+        {
+          headers: AuthenticationService.getAuthHeader(),
+          withCredentials: true,
+        },
       )
 
-      console.log(response)
+      localStorage.removeItem('user')
+
       return {
         data: response.data,
         error: null,
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(`Axios Error: ${error.message}`)
         return {
           data: null,
           error: error.message,
         }
       }
-      console.error(`Unexpected Error: ${error}`)
       return {
         data: null,
         error: 'Something went wrong',
       }
     }
+  }
+
+  static getCurrentUser() {
+    const userStr = localStorage.getItem('user')
+    if (!userStr) return null
+    return JSON.parse(userStr)
+  }
+
+  static getAuthHeader() {
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      const user = JSON.parse(userStr)
+      if (user && user.token) {
+        return { Authorization: `Bearer ${user.token}` }
+      }
+      return { Authorization: '' }
+    }
+    return { Authorization: '' }
   }
 }
 

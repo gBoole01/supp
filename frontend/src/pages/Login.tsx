@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import AuthenticationService from '../services/authentication/authentication.service'
 
 const Login = () => {
@@ -6,10 +7,15 @@ const Login = () => {
   const [password, setPassword] = useState('')
 
   const [errors, setErrors] = useState({
+    server: false,
     email: false,
     emailFormat: false,
     password: false,
   })
+  const [serverError, setServerError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const navigate = useNavigate()
 
   const resetFormValues = () => {
     setEmail('')
@@ -18,6 +24,7 @@ const Login = () => {
 
   const handleValidation = () => {
     const tempErrors = {
+      server: false,
       email: false,
       emailFormat: false,
       password: false,
@@ -47,14 +54,22 @@ const Login = () => {
     event.preventDefault()
     const isValidForm = handleValidation()
     if (isValidForm) {
+      setIsSubmitting(true)
       const { data, error } = await AuthenticationService.login(email, password)
+      setIsSubmitting(false)
       if (error) {
-        // TODO => Handle API Errors
-        console.error(error)
+        setErrors({
+          server: true,
+          email: false,
+          emailFormat: false,
+          password: false,
+        })
+        setServerError(error)
       }
-      // TODO => Handle Valid Login
-      console.log(data)
-      resetFormValues()
+      if (data) {
+        resetFormValues()
+        navigate('/')
+      }
     }
   }
 
@@ -64,6 +79,7 @@ const Login = () => {
         className="d-flex flex-column gap-4 align-items-center"
         onSubmit={handleSubmit}
       >
+        {errors?.server && <p>{serverError}</p>}
         <div className="form-group">
           <label className="form-label" htmlFor="email">
             Email
@@ -96,7 +112,7 @@ const Login = () => {
           data-bs-dismiss="modal"
           className="btn btn-secondary"
         >
-          Login
+          {isSubmitting ? 'Logging in...' : 'Login'}
         </button>
       </form>
       <a href="/signup">No Account ? Register</a>

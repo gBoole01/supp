@@ -16,10 +16,10 @@ const maxAge =
 
 const cookieConfig: CookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV !== 'production',
+  secure: process.env.NODE_ENV === 'production',
   signed: true,
   maxAge,
-  sameSite: 'none',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
 }
 
 export default cookieConfig
