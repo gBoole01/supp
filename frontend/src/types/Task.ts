@@ -3,4 +3,8 @@ type Task = {
   name: string
 }
 
-export default Task
+type NewTask = {
+  name: string
+}
+
+export type { Task, NewTask }
