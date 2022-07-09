@@ -30,16 +30,16 @@ class AuthenticationController implements Controller {
       passport.authenticate('local', { session: false }),
       AuthenticationController.authentication,
     )
-    this.router.get(
+    this.router.post(
       `${this.path}/refreshToken`,
       AuthenticationController.refreshToken,
     )
-    this.router.get(
+    this.router.post(
       `${this.path}/me`,
       passport.authenticate('jwt', { session: false }),
       AuthenticationController.getUserDetails,
     )
-    this.router.get(
+    this.router.post(
       `${this.path}/logout`,
       passport.authenticate('jwt', { session: false }),
       AuthenticationController.disconnection,
