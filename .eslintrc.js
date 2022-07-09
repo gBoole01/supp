@@ -16,4 +16,10 @@ module.exports = {
     'import/extensions': ['error', 'never'],
     'no-underscore-dangle': ['error', { 'allow': ['_id'] }],
   },
+  overrides: [{
+    files: ['./frontend/**'],
+    rules: {
+      'no-console': 'off'
+    }
+  }]
 }
