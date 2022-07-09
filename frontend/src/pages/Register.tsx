@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import AuthenticationService from '../services/authentication/authentication.service'
 
 const Register = () => {
@@ -8,12 +9,17 @@ const Register = () => {
   const [passwordConfirm, setPasswordConfirm] = useState('')
 
   const [errors, setErrors] = useState({
+    server: false,
     name: false,
     email: false,
     emailFormat: false,
     password: false,
     passwordConfirm: false,
   })
+  const [serverError, setServerError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const navigate = useNavigate()
 
   const resetFormValues = () => {
     setName('')
@@ -24,6 +30,7 @@ const Register = () => {
 
   const handleValidation = () => {
     const tempErrors = {
+      server: false,
       name: false,
       email: false,
       emailFormat: false,
@@ -65,18 +72,28 @@ const Register = () => {
     event.preventDefault()
     const isValidForm = handleValidation()
     if (isValidForm) {
+      setIsSubmitting(true)
       const { data, error } = await AuthenticationService.register(
         name,
         email,
         password,
       )
+      setIsSubmitting(false)
       if (error) {
-        // TODO => Handle API Errors
-        console.error(error)
+        setErrors({
+          server: true,
+          name: false,
+          email: false,
+          emailFormat: false,
+          password: false,
+          passwordConfirm: false,
+        })
+        setServerError(error)
       }
-      // TODO => Handle Valid Login
-      console.log(data)
-      resetFormValues()
+      if (data) {
+        resetFormValues()
+        navigate('/')
+      }
     }
   }
 
@@ -85,8 +102,8 @@ const Register = () => {
       <form
         className="d-flex flex-column gap-4 align-items-center"
         onSubmit={handleSubmit}
-        id="register-form"
       >
+        {errors?.server && <p>{serverError}</p>}
         <div className="form-group">
           <label className="form-label" htmlFor="name">
             Name
@@ -142,7 +159,7 @@ const Register = () => {
         </div>
 
         <button type="submit" className="btn btn-secondary">
-          Register
+          {isSubmitting ? 'Registering...' : 'Register'}
         </button>
       </form>
       <a href="/signin">Have an Account ? Login</a>
