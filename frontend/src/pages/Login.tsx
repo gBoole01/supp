@@ -1,19 +1,22 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useUserContext } from '../context/UserContext'
 import AuthenticationService from '../services/authentication/authentication.service'
 
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
+  const [serverError, setServerError] = useState('')
   const [errors, setErrors] = useState({
     server: false,
     email: false,
     emailFormat: false,
     password: false,
   })
-  const [serverError, setServerError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const userContext = useUserContext()
+  if (!userContext) return <div>No User Context</div>
+  const { login } = userContext
 
   const navigate = useNavigate()
 
@@ -67,6 +70,7 @@ const Login = () => {
         setServerError(error)
       }
       if (data) {
+        login(data.token)
         resetFormValues()
         navigate('/')
       }

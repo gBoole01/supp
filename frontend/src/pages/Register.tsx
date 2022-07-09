@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useUserContext } from '../context/UserContext'
 import AuthenticationService from '../services/authentication/authentication.service'
 
 const Register = () => {
@@ -19,6 +20,9 @@ const Register = () => {
   const [serverError, setServerError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const userContext = useUserContext()
+  if (!userContext) return <div>No User Context</div>
+  const { login } = userContext
   const navigate = useNavigate()
 
   const resetFormValues = () => {
@@ -91,6 +95,7 @@ const Register = () => {
         setServerError(error)
       }
       if (data) {
+        login(data.token)
         resetFormValues()
         navigate('/')
       }
